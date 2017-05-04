@@ -18,6 +18,7 @@
   "author": "Lua Zhi Zhan",
   "license": "Unlicense",
   "dependencies": {
+    "apiai": "^4.0.2",
     "node-telegram-bot-api": "^0.27.1"
   }
 }

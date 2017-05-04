@@ -1,30 +1,80 @@
-var TOKEN = process.env.TELEGRAM_TOKEN || 'YOUR_TELEGRAM_BOT_TOKEN';
 var TelegramBot = require('node-telegram-bot-api');
+var apiai = require('apiai');
+var TOKEN = process.env.TELEGRAM_TOKEN || 'YOUR_TELEGRAM_BOT_TOKEN';
 var options = {
     webHook: {
-        // Port to which you should bind is assigned to $PORT variable
-        // See: https://devcenter.heroku.com/articles/dynos#local-environment-variables
         port: process.env.PORT
-        // you do NOT need to set up certificates since Heroku provides
-        // the SSL certs already (https://<app-name>.herokuapp.com)
-        // Also no need to pass IP because on Heroku you need to bind to 0.0.0.0
     }
 };
-// Heroku routes from port :443 to $PORT
-// Add URL of your app to env variable or enable Dyno Metadata
-// to get this automatically
-// See: https://devcenter.heroku.com/articles/dyno-metadata
+
+
+/**
+ * Bot webhook set up
+ */
 var url = process.env.APP_URL || 'https://<app-name>.herokuapp.com:443';
 var bot = new TelegramBot(TOKEN, options);
-
-
-// This informs the Telegram servers of the new webhook.
-// Note: we do not need to pass in the cert, as it already provided
 bot.setWebHook(`${url}/bot${TOKEN}`);
 
+//api ai set up
+var app = apiai("CLIENT-ACCESS-KEY");
 
-// Just to ping!
+
+/**
+ * Bot methods
+ */
 bot.on('message', function onMessage(msg) {
-	console.log("Incoming message object ===" + JSON.stringify(msg));
+    console.log("Incoming message object ===" + JSON.stringify(msg));
+    var isBotCommand = checkForBotCommand(msg);
+    console.log("isBotCommand: " + isBotCommand);
+    if (isBotCommand) {
+        switch (msg.text) {
+            case "/sources":
+                console.log("text: /sources");
+                var options = {
+                    reply_markup: {
+                        inline_keyboard: [
+                            [
+                                {
+                                    text: "test 1",
+                                    callback_data: "test_1"
+                                },
+                                {
+                                    text: "test 2",
+                                    callback_data: "test_2"
+                                },
+                                {
+                                    text: "test 3",
+                                    callback_data: "test_3"
+                                }
+                            ]
+                        ]
+                    }
+                };
+                bot.sendMessage(msg.chat.id, 'text: /sources', options);
+                break;
+            case "/help":
+                console.log("text: /help");
+                break;
+            case "/restart":
+                console.log("text: /restart");
+                break;
+        }
+    }
     bot.sendMessage(msg.chat.id, 'I am alive on Heroku!');
 });
+
+bot.on('callback_query', function onCallback(msg) {
+    console.log("callback_query incoming message object === " + JSON.stringify(msg));
+    bot.sendMessage(msg.from.id, 'I am alive on Heroku! (callback_query)');
+});
+
+
+/**
+ * Logic functions
+ */
+function checkForBotCommand(msgObj) {
+    if (msgObj.entities !== undefined) {
+        return true;
+    }
+    return false;
+}
