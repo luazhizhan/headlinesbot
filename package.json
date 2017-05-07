@@ -16,7 +16,7 @@
     "news"
   ],
   "author": "Lua Zhi Zhan",
-  "license": "Unlicense",
+  "license": "GPL-3.0",
   "dependencies": {
     "apiai": "^4.0.2",
     "node-telegram-bot-api": "^0.27.1"

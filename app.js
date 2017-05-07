@@ -17,44 +17,23 @@ bot.setWebHook(`${url}/bot${TOKEN}`);
 
 //api ai set up
 var app = apiai("CLIENT-ACCESS-KEY");
+var newsApiKey = "NEWS-API-KEY";
 
 
 /**
  * Bot methods
  */
 bot.on('message', function onMessage(msg) {
-    console.log("Incoming message object ===" + JSON.stringify(msg));
     var isBotCommand = checkForBotCommand(msg);
     var txt = "";
     var options = {};
     if (isBotCommand) {
         switch (msg.text) {
             case "/start":
-                txt = "Hi there, what can I do for you?" +
-                    "\n\nI have been trained to understand what you are typing. You may try sending any of these to me." +
-                    "\n- Show me the latest google news \n- Top bbc news \n- Techcrunch news right now \n- Popular national geographic news" +
-                    "\n\nCommands: \n/sources - list of news sources \n/help - help list \n/restart - back to beginning \n";
+                txt = getCommandStartTxt();
                 options = {
                     reply_markup: {
-                        keyboard: [
-                            ["ABC News"],
-                            ["BBC News"],
-                            ["BBC Sport"],
-                            ["CNN News"],
-                            ["The Washington Post"],
-                            ["The New York Times"],
-                            ["Google News"],
-                            ["Bloomberg"],
-                            ["Fox Sport"],
-                            ["The Independent"],
-                            ["National Geographic"],
-                            ["Techcrunch"],
-                            ["The Economist"],
-                            ["Business Insider"],
-                            ["Engadget"],
-                            ["The Wall Street Journal"],
-                            ["Hacker News"]
-                        ]
+                        keyboard: getKeyboardMarkupArr()
                     }
                 };
                 break;
@@ -76,7 +55,11 @@ bot.on('message', function onMessage(msg) {
                     "14. [Business Insider](http://www.businessinsider.com/) Business Insider is a fast-growing business site with deep financial, media, tech, and other industry verticals. Launched in 2007, the site is now the largest ... \n\n" +
                     "15. [Engadget](https://www.engadget.com/) Engadget is the original home for technology news and reviews. Since its founding in 2004, we've grown from an exhaustive source for consumer tech news to a ... \n\n" +
                     "16. [The Wall Street Journal](https://www.wsj.com) WSJ online coverage of breaking news and current headlines from the US and around the world. Top stories, photos, videos, detailed analysis and in-depth ... \n\n" +
-                    "17. *Hacker News* From different sources";
+                    "17. [The Telegraph](http://www.telegraph.co.uk/) Latest news, business, sport, comment, lifestyle and culture from the Daily Telegraph and Sunday Telegraph newspapers and video from Telegraph TV. \n\n" +
+                    "18. [The Lad Bible](http://www.ladbible.com/) LADbible is the home of entertainment, original video, viral content and news. We are the biggest community in the world for a social generation. \n\n" +
+                    "19. [IGN](http://ign.com/) IGN is your site for Xbox One, PS4, PC, Wii-U, Xbox 360, PS3, Wii, 3DS, PS Vita & iPhone games with expert reviews, news, previews, trailers, cheat codes, wiki ... \n\n" +
+                    "20. [Entertainment Weekly](http://ew.com/) Entertainment Weekly has all the latest news about TV shows, movies, and music, as well as exclusive behind the scenes content from the entertainment ... \n\n" +
+                    "21. *Hacker News* From different sources";
                 options = {
                     parse_mode: "Markdown",
                     disable_web_page_preview: true,
@@ -84,35 +67,14 @@ bot.on('message', function onMessage(msg) {
                 break;
             case "/help":
                 txt = "I have been trained to understand what you are typing. You may try sending any of these to me." +
-                    "\n- Show me the latest google news \n- Top bbc news \n- Techcrunch news right now \n- Popular national geographic news" +
+                    "\n- Show me google news \n- BBC news \n- Techcrunch news \n- National geographic news" +
                     "\n\nCommands: \n/sources - list of news sources \n/help - help list \n/restart - back to beginning \n";
                 break;
             case "/restart":
-                txt = "Hi there, what can I do for you?" +
-                    "\n\nI have been trained to understand what you are typing. You may try sending any of these to me." +
-                    "\n- Show me the latest google news \n- Top bbc news \n- Techcrunch news right now \n- Popular national geographic news" +
-                    "\n\nCommands: \n/sources - list of news sources \n/help - help list \n/restart - back to beginning \n";
+                txt = getCommandStartTxt();
                 options = {
                     reply_markup: {
-                        keyboard: [
-                            ["ABC News"],
-                            ["BBC News"],
-                            ["BBC Sport"],
-                            ["CNN News"],
-                            ["The Washington Post"],
-                            ["The New York Times"],
-                            ["Google News"],
-                            ["Bloomberg"],
-                            ["Fox Sport"],
-                            ["The Independent"],
-                            ["National Geographic"],
-                            ["Techcrunch"],
-                            ["The Economist"],
-                            ["Business Insider"],
-                            ["Engadget"],
-                            ["The Wall Street Journal"],
-                            ["Hacker News"]
-                        ]
+                        keyboard: getKeyboardMarkupArr()
                     }
                 };
                 break;
@@ -123,16 +85,43 @@ bot.on('message', function onMessage(msg) {
         }
         bot.sendMessage(msg.chat.id, txt, options);
     } else {
-        var request = app.textRequest(msg.text, {
+        var request = apiaiApp.textRequest(msg.text, {
             sessionId: parseInt(msg.chat.id)
         });
         request.on('response', function (response) {
-            console.log(response);
+            console.log("apiai response: " + JSON.stringify(response));
             switch (response.result.metadata.intentName) {
                 case "Default Welcome Intent":
                     txt = response.result.fulfillment.messages[0].speech;
+                    bot.sendMessage(msg.chat.id, txt, options);
                     break;
                 case "News Articles Intent":
+                    var sourceTitle = response.result.parameters.source[0];
+                    var sourceStr = getNewsSourceStr(sourceTitle);
+                    var httpsRequestObj = {
+                        host: "newsapi.org",
+                        path: "/v1/articles?source=" + sourceStr + "&apiKey=" + newsApiKey,
+                        method: "GET"
+                    };
+                    https.get(httpsRequestObj, function (res) {
+                        res.on('data', function (d) {
+                            var jsonData = JSON.parse(decodeURIComponent(d));
+                            var articles = jsonData.articles;
+                            txt = "*" + sourceTitle + "*\n\n";
+                            var articlesLength = 0;
+                            for (articlesLength; articlesLength < articles.length; articlesLength++) {
+                                var articlesObj = articles[articlesLength];
+                                txt += "*" + articlesObj.title + "*\n" + articlesObj.description +
+                                    "\n[View full article here](" + articlesObj.url + ")\n\n";
+                            }
+                            txt += "[Powered by News API](https://newsapi.org/)";
+                            options = {
+                                parse_mode: "Markdown",
+                                disable_web_page_preview: true
+                            };
+                            bot.sendMessage(msg.chat.id, txt, options);
+                        });
+                    });
                     break;
                 case "News Sources Intent":
                     txt = "List of news sources \n" +
@@ -157,18 +146,18 @@ bot.on('message', function onMessage(msg) {
                         parse_mode: "Markdown",
                         disable_web_page_preview: true,
                     };
+                    bot.sendMessage(msg.chat.id, txt, options);
                     break;
                 case "Default Fallback Intent":
                     txt = response.result.fulfillment.messages[0].speech;
+                    bot.sendMessage(msg.chat.id, txt, options);
                     break;
                 default:
                     txt = "Sorry, I do not understand you.";
                     break;
             }
-            bot.sendMessage(msg.chat.id, txt, options);
         });
         request.on('error', function (error) {
-            console.log(error);
             txt = "Sorry, an error has occur. Please try again later.";
             bot.sendMessage(msg.chat.id, txt, options);
         });
@@ -186,41 +175,105 @@ function checkForBotCommand(msgObj) {
     return false;
 }
 
-function checkWhichNewsSource(source, sort) {
-    switch (source) {
+function getKeyboardMarkupArr() {
+    return [
+        ["ABC News"],
+        ["BBC News"],
+        ["BBC Sport"],
+        ["CNN News"],
+        ["The Washington Post"],
+        ["The New York Times"],
+        ["Google News"],
+        ["Bloomberg"],
+        ["Fox Sport"],
+        ["The Independent"],
+        ["National Geographic"],
+        ["Techcrunch"],
+        ["The Economist"],
+        ["Business Insider"],
+        ["Engadget"],
+        ["The Wall Street Journal"],
+        ["The Telegraph"],
+        ["The Lad Bible"],
+        ["IGN"],
+        ["Entertainment Weekly"],
+        ["Hacker News"]
+    ];
+}
+
+function getCommandStartTxt() {
+    return "Hi there, what can I do for you?" +
+        "\n\nI have been trained to understand what you are typing. You may try sending any of these to me." +
+        "\n- Show me google news \n- BBC news \n- Techcrunch news \n- National geographic news" +
+        "\n\nCommands: \n/sources - list of news sources \n/help - help list \n/restart - back to beginning \n";
+}
+
+function getNewsSourceStr(sourceTitle) {
+    var newsSourceStr = null;
+    switch (sourceTitle) {
         case "ABC News":
+            newsSourceStr = "abc-news-au";
             break;
         case "BBC News":
+            newsSourceStr = "bbc-news";
             break;
         case "BBC Sport":
+            newsSourceStr = "bbc-sport";
             break;
         case "CNN News":
+            newsSourceStr = "cnn";
             break;
         case "The Washington Post":
+            newsSourceStr = "the-washington-post";
             break;
         case "The New York Times":
+            newsSourceStr = "the-new-york-times";
             break;
         case "Google News":
+            newsSourceStr = "google-news";
             break;
         case "Bloomberg":
+            newsSourceStr = "bloomberg";
             break;
         case "Fox News":
+            newsSourceStr = "fox-sports";
             break;
         case "The Independent":
+            newsSourceStr = "independent";
             break;
         case "National Geographic":
+            newsSourceStr = "national-geographic";
             break;
         case "Techcrunch":
+            newsSourceStr = "techcrunch";
             break;
         case "The Economist":
+            newsSourceStr = "the-economist";
             break;
         case "Business Insider":
+            newsSourceStr = "business-insider";
             break;
         case "Engadget":
+            newsSourceStr = "engadget";
             break;
         case "The Wall Street Journal":
+            newsSourceStr = "the-wall-street-journal";
+            break;
+        case "The Telegraph":
+            newsSourceStr = "the-telegraph";
+            break;
+        case "The Lad Bible":
+            newsSourceStr = "the-lad-bible";
+            break;
+        case "IGN":
+            newsSourceStr = "ign";
+            break;
+        case "Entertainment Weekly":
+            newsSourceStr = "entertainment-weekly";
             break;
         case "Hacker News":
+            newsSourceStr = "hacker-news";
             break;
     }
+    return newsSourceStr;
 }
