@@ -37,7 +37,7 @@ bot.on('message', function onMessage(msg) {
                 txt = getCommandStartTxt();
                 options = {
                     reply_markup: {
-                        keyboard: getKeyboardMarkupArr()
+                        keyboard: getMainKeyBoardMarkupArr()
                     }
                 };
                 break;
@@ -60,7 +60,7 @@ bot.on('message', function onMessage(msg) {
                 txt = getCommandStartTxt();
                 options = {
                     reply_markup: {
-                        keyboard: getKeyboardMarkupArr()
+                        keyboard: getMainKeyBoardMarkupArr()
                     }
                 };
                 break;
@@ -71,73 +71,143 @@ bot.on('message', function onMessage(msg) {
         }
         bot.sendMessage(msg.chat.id, txt, options);
     } else {
-        var apiaiRequest = apiaiApp.textRequest(msg.text, {
-            sessionId: parseInt(msg.chat.id)
-        });
-        apiaiRequest.on('response', function (response) {
-            console.log("apiai response: " + JSON.stringify(response));
-            switch (response.result.metadata.intentName) {
-                case "Default Welcome Intent":
-                    botan.track(msg, 'Default Welcome Intent');
-                    txt = response.result.fulfillment.messages[0].speech;
-                    bot.sendMessage(msg.chat.id, txt, options);
-                    break;
-                case "News Articles Intent":
-                    botan.track(msg, 'News Articles Intent');
-                    var sourceTitle = response.result.parameters.source[0];
-                    var sourceStr = getNewsSourceStr(sourceTitle);
-                    var url = "https://newsapi.org" + "/v1/articles?source=" + sourceStr + "&apiKey=" + newsApiKey;
-                    request(url, function (error, response, body) {
-                        if (error === null) {
-                            var jsonData = JSON.parse(body);
-                            var articles = jsonData.articles;
+        txt = "Select a news source";
+        switch (msg.text) {
+            case "General🌞":
+                options = {
+                    reply_markup: {
+                        keyboard: getGeneralNewsKeyboardMarkupArr()
+                    }
+                };
+                bot.sendMessage(msg.chat.id, txt, options);
+                break;
+            case "Business👔":
+                options = {
+                    reply_markup: {
+                        keyboard: getBusinessNewsKeyboardMarkupArr()
+                    }
+                };
+                bot.sendMessage(msg.chat.id, txt, options);
+                break;
+            case "Entertainment🎉":
+                options = {
+                    reply_markup: {
+                        keyboard: getEntertainmentNewsKeyboardMarkupArr()
+                    }
+                };
+                bot.sendMessage(msg.chat.id, txt, options);
+                break;
+            case "Sports🏅":
+                options = {
+                    reply_markup: {
+                        keyboard: getSportsNewsKeyboardMarkupArr()
+                    }
+                };
+                bot.sendMessage(msg.chat.id, txt, options);
+                break;
+            case "Technology📱":
+                options = {
+                    reply_markup: {
+                        keyboard: getTechNewsKeyboardMarkupArr()
+                    }
+                };
+                bot.sendMessage(msg.chat.id, txt, options);
+                break;
+            case "Science and nature🔬🏞️":
+                options = {
+                    reply_markup: {
+                        keyboard: getScienceAndNatureNewsKeyboardMarkupArr()
+                    }
+                };
+                bot.sendMessage(msg.chat.id, txt, options);
+                break;
+            case "Gaming🎮":
+                options = {
+                    reply_markup: {
+                        keyboard: getGamingNewsKeyboardMarkupArr()
+                    }
+                };
+                bot.sendMessage(msg.chat.id, txt, options);
+                break;
+            case "Back":
+                txt = "Select a category";
+                options = {
+                    reply_markup: {
+                        keyboard: getMainKeyBoardMarkupArr()
+                    }
+                };
+                bot.sendMessage(msg.chat.id, txt, options);
+                break;
+            default:
+                var apiaiRequest = apiaiApp.textRequest(msg.text, {
+                    sessionId: parseInt(msg.chat.id)
+                });
+                apiaiRequest.on('response', function (response) {
+                    console.log("apiai response: " + JSON.stringify(response));
+                    switch (response.result.metadata.intentName) {
+                        case "Default Welcome Intent":
+                            botan.track(msg, 'Default Welcome Intent');
+                            txt = response.result.fulfillment.messages[0].speech;
+                            bot.sendMessage(msg.chat.id, txt, options);
+                            break;
+                        case "News Articles Intent":
+                            botan.track(msg, 'News Articles Intent');
+                            var sourceTitle = response.result.parameters.source[0];
+                            var sourceStr = getNewsSourceStr(sourceTitle);
+                            var url = "https://newsapi.org" + "/v1/articles?source=" + sourceStr + "&apiKey=" + newsApiKey;
+                            request(url, function (error, response, body) {
+                                if (error === null) {
+                                    var jsonData = JSON.parse(body);
+                                    var articles = jsonData.articles;
+                                    options = {
+                                        parse_mode: "Markdown",
+                                        disable_web_page_preview: false
+                                    };
+                                    txt = "*" + sourceTitle + "*\n\n" + "[Powered by News API](https://newsapi.org/)";
+                                    bot.sendMessage(msg.chat.id, txt, options);
+
+                                    var articlesLength = 0;
+                                    for (articlesLength; articlesLength < articles.length; articlesLength++) {
+                                        var articlesObj = articles[articlesLength];
+                                        txt = "*" + articlesObj.title + "*\n" + articlesObj.description +
+                                            "\n[View full article here](" + articlesObj.url + ")\n\n";
+                                        bot.sendMessage(msg.chat.id, txt, options);
+                                    }
+                                } else {
+                                    botan.track(msg, 'News Articles Intent Error');
+                                    console.log('error:', error);
+                                    bot.sendMessage(msg.chat.id, "An error has occured, please try again later", options);
+                                }
+                            });
+                            break;
+                        case "News Sources Intent":
+                            botan.track(msg, 'News Sources Intent');
+                            txt = getListOfNewsSources();
                             options = {
                                 parse_mode: "Markdown",
-                                disable_web_page_preview: false
+                                disable_web_page_preview: true,
                             };
-                            txt = "*" + sourceTitle + "*\n\n" + "[Powered by News API](https://newsapi.org/)";
                             bot.sendMessage(msg.chat.id, txt, options);
-
-                            var articlesLength = 0;
-                            for (articlesLength; articlesLength < articles.length; articlesLength++) {
-                                var articlesObj = articles[articlesLength];
-                                txt = "*" + articlesObj.title + "*\n" + articlesObj.description +
-                                    "\n[View full article here](" + articlesObj.url + ")\n\n";
-                                bot.sendMessage(msg.chat.id, txt, options);
-                            }
-                        } else {
-                            botan.track(msg, 'News Articles Intent Error');
-                            console.log('error:', error);
-                            bot.sendMessage(msg.chat.id, "An error has occured, please try again later", options);
-                        }
-                    });
-                    break;
-                case "News Sources Intent":
-                    botan.track(msg, 'News Sources Intent');
-                    txt = getListOfNewsSources();
-                    options = {
-                        parse_mode: "Markdown",
-                        disable_web_page_preview: true,
-                    };
+                            break;
+                        case "Default Fallback Intent":
+                            botan.track(msg, 'Default Fallback Intent');
+                            txt = response.result.fulfillment.messages[0].speech;
+                            bot.sendMessage(msg.chat.id, txt, options);
+                            break;
+                        default:
+                            botan.track(msg, 'Unkonwn Intent');
+                            txt = "Sorry, I do not understand you.";
+                            break;
+                    }
+                });
+                apiaiRequest.on('error', function (error) {
+                    botan.track(msg, 'api ai request error');
+                    txt = "Sorry, an error has occur. Please try again later.";
                     bot.sendMessage(msg.chat.id, txt, options);
-                    break;
-                case "Default Fallback Intent":
-                    botan.track(msg, 'Default Fallback Intent');
-                    txt = response.result.fulfillment.messages[0].speech;
-                    bot.sendMessage(msg.chat.id, txt, options);
-                    break;
-                default:
-                    botan.track(msg, 'Unkonwn Intent');
-                    txt = "Sorry, I do not understand you.";
-                    break;
-            }
-        });
-        apiaiRequest.on('error', function (error) {
-            botan.track(msg, 'api ai request error');
-            txt = "Sorry, an error has occur. Please try again later.";
-            bot.sendMessage(msg.chat.id, txt, options);
-        });
-        apiaiRequest.end();
+                });
+                apiaiRequest.end();
+                break;
+        }
     }
 });
 
@@ -175,32 +245,6 @@ function getListOfNewsSources() {
         "19. [IGN](http://ign.com/) IGN is your site for Xbox One, PS4, PC, Wii-U, Xbox 360, PS3, Wii, 3DS, PS Vita & iPhone games with expert reviews, news, previews, trailers, cheat codes, wiki ... \n\n" +
         "20. [Entertainment Weekly](http://ew.com/) Entertainment Weekly has all the latest news about TV shows, movies, and music, as well as exclusive behind the scenes content from the entertainment ... \n\n" +
         "21. *Hacker News* From different sources";
-}
-
-function getKeyboardMarkupArr() {
-    return [
-        ["ABC News"],
-        ["BBC News"],
-        ["BBC Sport"],
-        ["CNN News"],
-        ["The Washington Post"],
-        ["The New York Times"],
-        ["Google News"],
-        ["Bloomberg"],
-        ["Fox Sport"],
-        ["The Independent"],
-        ["National Geographic"],
-        ["Techcrunch"],
-        ["The Economist"],
-        ["Business Insider"],
-        ["Engadget"],
-        ["The Wall Street Journal"],
-        ["The Telegraph"],
-        ["The Lad Bible"],
-        ["IGN"],
-        ["Entertainment Weekly"],
-        ["Hacker News"]
-    ];
 }
 
 function getCommandStartTxt() {
