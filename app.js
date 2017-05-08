@@ -21,7 +21,6 @@ bot.setWebHook(`${url}/bot${TOKEN}`);
 //third party api set up
 var app = apiai("CLIENT-ACCESS-KEY");
 var newsApiKey = "NEWS-API-KEY";
-var radbotsApiKey = "RADBOT-API-KEY";
 
 
 /**
@@ -49,25 +48,6 @@ bot.on('message', function onMessage(msg) {
                     parse_mode: "Markdown",
                     disable_web_page_preview: true,
                 };
-                break;
-            case "/ads":
-                botan.track(msg, '/ads');
-                var adsURL = "https://radbots.com/api/ads?agent_key="+radbotsApiKey+"&media_type=image&persona_id=" + msg.chat.id;
-                request(adsURL, function (error, response, body) {
-                    var adsJSONData = JSON.parse(body);
-                    var photoOptions = {
-                        caption: adsJSONData.ad.cta_long,
-                        reply_markup: {
-                            inline_keyboard: [
-                                [{
-                                    text: "Find out more",
-                                    url: adsJSONData.ad.url
-                                }]
-                            ]
-                        }
-                    };
-                    bot.sendPhoto(msg.chat.id, adsJSONData.ad.media.url.medium, photoOptions);
-                });
                 break;
             case "/help":
                 botan.track(msg, '/help');
@@ -227,7 +207,7 @@ function getCommandStartTxt() {
     return "Hi there, what can I do for you?" +
         "\n\nI have been trained to understand what you are typing. You may try sending any of these to me." +
         "\n- Show me google news \n- BBC news \n- Techcrunch news \n- National geographic news" +
-        "\n\nCommands: \n/sources - list of news sources📰 \n/ads - thanks for your support😄 \n/help - help list🆘 \n/restart - back to beginning \n";
+        "\n\nCommands: \n/sources - list of news sources📰 \n/help - help list🆘 \n/restart - back to beginning \n";
 }
 
 function getNewsSourceStr(sourceTitle) {
