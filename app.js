@@ -1,5 +1,8 @@
+var botan = require('botanio')("APK-KEY-HERE");
 var TelegramBot = require('node-telegram-bot-api');
 var apiai = require('apiai');
+var request = require('request');
+
 var TOKEN = process.env.TELEGRAM_TOKEN || 'YOUR_TELEGRAM_BOT_TOKEN';
 var options = {
     webHook: {
@@ -30,6 +33,7 @@ bot.on('message', function onMessage(msg) {
     if (isBotCommand) {
         switch (msg.text) {
             case "/start":
+                botan.track(msg, '/start');
                 txt = getCommandStartTxt();
                 options = {
                     reply_markup: {
@@ -38,6 +42,7 @@ bot.on('message', function onMessage(msg) {
                 };
                 break;
             case "/sources":
+                botan.track(msg, '/sources');
                 txt = "List of news sources \n" +
                     "1. [ABC News](http://abcnews.go.com/) Your trusted source for breaking news, analysis, exclusive interviews, headlines, and videos at ABCNews.com \n\n" +
                     "2. [BBC News](http://www.bbc.com/news) Visit BBC News for up-to-the-minute news, breaking news, video, audio and feature stories. BBC News provides trusted World and UK news as well as local and ... \n\n" +
@@ -66,11 +71,13 @@ bot.on('message', function onMessage(msg) {
                 };
                 break;
             case "/help":
+                botan.track(msg, '/help');
                 txt = "I have been trained to understand what you are typing. You may try sending any of these to me." +
                     "\n- Show me google news \n- BBC news \n- Techcrunch news \n- National geographic news" +
                     "\n\nCommands: \n/sources - list of news sources \n/help - help list \n/restart - back to beginning \n";
                 break;
             case "/restart":
+                botan.track(msg, '/restart');
                 txt = getCommandStartTxt();
                 options = {
                     reply_markup: {
@@ -85,45 +92,49 @@ bot.on('message', function onMessage(msg) {
         }
         bot.sendMessage(msg.chat.id, txt, options);
     } else {
-        var request = apiaiApp.textRequest(msg.text, {
+        var apiaiRequest = apiaiApp.textRequest(msg.text, {
             sessionId: parseInt(msg.chat.id)
         });
-        request.on('response', function (response) {
+        apiaiRequest.on('response', function (response) {
             console.log("apiai response: " + JSON.stringify(response));
             switch (response.result.metadata.intentName) {
                 case "Default Welcome Intent":
+                    botan.track(msg, 'Default Welcome Intent');
                     txt = response.result.fulfillment.messages[0].speech;
                     bot.sendMessage(msg.chat.id, txt, options);
                     break;
                 case "News Articles Intent":
+                    botan.track(msg, 'News Articles Intent');
                     var sourceTitle = response.result.parameters.source[0];
                     var sourceStr = getNewsSourceStr(sourceTitle);
-                    var httpsRequestObj = {
-                        host: "newsapi.org",
-                        path: "/v1/articles?source=" + sourceStr + "&apiKey=" + newsApiKey,
-                        method: "GET"
-                    };
-                    https.get(httpsRequestObj, function (res) {
-                        res.on('data', function (d) {
-                            var jsonData = JSON.parse(decodeURIComponent(d));
+                    var url = "https://newsapi.org" + "/v1/articles?source=" + sourceStr + "&apiKey=" + newsApiKey;
+                    request(url, function (error, response, body) {
+                        if (error === null) {
+                            var jsonData = JSON.parse(body);
                             var articles = jsonData.articles;
-                            txt = "*" + sourceTitle + "*\n\n";
+                            options = {
+                                parse_mode: "Markdown",
+                                disable_web_page_preview: false
+                            };
+                            txt = "*" + sourceTitle + "*\n\n" + "[Powered by News API](https://newsapi.org/)";
+                            bot.sendMessage(msg.chat.id, txt, options);
+
                             var articlesLength = 0;
                             for (articlesLength; articlesLength < articles.length; articlesLength++) {
                                 var articlesObj = articles[articlesLength];
-                                txt += "*" + articlesObj.title + "*\n" + articlesObj.description +
+                                txt = "*" + articlesObj.title + "*\n" + articlesObj.description +
                                     "\n[View full article here](" + articlesObj.url + ")\n\n";
+                                bot.sendMessage(msg.chat.id, txt, options);
                             }
-                            txt += "[Powered by News API](https://newsapi.org/)";
-                            options = {
-                                parse_mode: "Markdown",
-                                disable_web_page_preview: true
-                            };
-                            bot.sendMessage(msg.chat.id, txt, options);
-                        });
+                        } else {
+                            botan.track(msg, 'News Articles Intent Error');
+                            console.log('error:', error);
+                            bot.sendMessage(msg.chat.id, "An error has occured, please try again later", options);
+                        }
                     });
                     break;
                 case "News Sources Intent":
+                    botan.track(msg, 'News Sources Intent');
                     txt = "List of news sources \n" +
                         "1. [ABC News](http://abcnews.go.com/) Your trusted source for breaking news, analysis, exclusive interviews, headlines, and videos at ABCNews.com \n\n" +
                         "2. [BBC News](http://www.bbc.com/news) Visit BBC News for up-to-the-minute news, breaking news, video, audio and feature stories. BBC News provides trusted World and UK news as well as local and ... \n\n" +
@@ -149,19 +160,22 @@ bot.on('message', function onMessage(msg) {
                     bot.sendMessage(msg.chat.id, txt, options);
                     break;
                 case "Default Fallback Intent":
+                    botan.track(msg, 'Default Fallback Intent');
                     txt = response.result.fulfillment.messages[0].speech;
                     bot.sendMessage(msg.chat.id, txt, options);
                     break;
                 default:
+                    botan.track(msg, 'Unkonwn Intent');
                     txt = "Sorry, I do not understand you.";
                     break;
             }
         });
-        request.on('error', function (error) {
+        apiaiRequest.on('error', function (error) {
+            botan.track(msg, 'api ai request error');
             txt = "Sorry, an error has occur. Please try again later.";
             bot.sendMessage(msg.chat.id, txt, options);
         });
-        request.end();
+        apiaiRequest.end();
     }
 });
 
