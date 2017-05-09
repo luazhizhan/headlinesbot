@@ -41,19 +41,20 @@ bot.on('message', function onMessage(msg) {
                     }
                 };
                 break;
-            case "/sources":
-                botan.track(msg, '/sources');
-                txt = getListOfNewsSources();
+            case "/categories":
+                botan.track(msg, '/categories');
+                txt = "Here is a list of news categories.";
                 options = {
-                    parse_mode: "Markdown",
-                    disable_web_page_preview: true,
+                    reply_markup: {
+                        keyboard: getMainKeyBoardMarkupArr()
+                    }
                 };
                 break;
             case "/help":
                 botan.track(msg, '/help');
                 txt = "I have been trained to understand what you are typing. You may try sending any of these to me." +
                     "\n- Show me google news \n- BBC news \n- Techcrunch news \n- National geographic news" +
-                    "\n\nCommands: \n/sources - list of news sources \n/help - help list \n/restart - back to beginning \n";
+                    "\n\nCommands: \n/categories - list of news categories📰 \n/help - help list🆘 \n/restart - back to beginning \n";
                 break;
             case "/restart":
                 botan.track(msg, '/restart');
@@ -66,14 +67,14 @@ bot.on('message', function onMessage(msg) {
                 break;
             default:
                 txt = "I do not understand that command." +
-                    "\n\nCommands that I know: \n/sources - list of news sources \n/help - help list \n/restart - back to beginning \n";
+                    "\n\nCommands that I know: \n/categories - list of news categories📰 \n/help - help list🆘 \n/restart - back to beginning \n";
                 break;
         }
         bot.sendMessage(msg.chat.id, txt, options);
     } else {
-        txt = "Select a news source";
+        txt = "Please select a news source";
         switch (msg.text) {
-            case "General🌞":
+            case "General☀️":
                 options = {
                     reply_markup: {
                         keyboard: getGeneralNewsKeyboardMarkupArr()
@@ -130,7 +131,7 @@ bot.on('message', function onMessage(msg) {
                 bot.sendMessage(msg.chat.id, txt, options);
                 break;
             case "Back":
-                txt = "Select a category";
+                txt = "Please select a news category";
                 options = {
                     reply_markup: {
                         keyboard: getMainKeyBoardMarkupArr()
@@ -180,12 +181,13 @@ bot.on('message', function onMessage(msg) {
                                 }
                             });
                             break;
-                        case "News Sources Intent":
-                            botan.track(msg, 'News Sources Intent');
-                            txt = getListOfNewsSources();
+                        case "News Categories Intent":
+                            botan.track(msg, 'News Categories Intent');
+                            txt = "Here is a list of news categories.";
                             options = {
-                                parse_mode: "Markdown",
-                                disable_web_page_preview: true,
+                                reply_markup: {
+                                    keyboard: getMainKeyBoardMarkupArr()
+                                }
                             };
                             bot.sendMessage(msg.chat.id, txt, options);
                             break;
@@ -222,36 +224,11 @@ function checkForBotCommand(msgObj) {
     return false;
 }
 
-function getListOfNewsSources() {
-    return "List of news sources \n" +
-        "1. [ABC News](http://abcnews.go.com/) Your trusted source for breaking news, analysis, exclusive interviews, headlines, and videos at ABCNews.com \n\n" +
-        "2. [BBC News](http://www.bbc.com/news) Visit BBC News for up-to-the-minute news, breaking news, video, audio and feature stories. BBC News provides trusted World and UK news as well as local and ... \n\n" +
-        "3. [BBC Sport](http://www.bbc.com/sport) The home of BBC Sport online. Includes live sports coverage, breaking news \n\n" +
-        "4. [CNN News](http://edition.cnn.com/) View the latest news and breaking news today for U.S., world, weather, entertainment, politics and health at CNN.com\n\n" +
-        "5. [The Washington Post](https://www.washingtonpost.com/) Breaking news and analysis on politics, business, world national news, entertainment more. In-depth DC, Virginia, Maryland news coverage including traffic ... \n\n" +
-        "6. [The New York Times](https://www.nytimes.com/) The New York Times: Find breaking news, multimedia, reviews & opinion on Washington, business, sports, movies, travel, books, jobs, education, real estate, ... \n\n" +
-        "7. [Google News](https://news.google.com/) Comprehensive, up-to-date news coverage, aggregated from sources all over the world by Google News. \n\n" +
-        "8. [Bloomberg](https://www.bloomberg.com) Bloomberg delivers business and markets news, data, analysis, and video to the world, featuring stories from Businessweek and Bloomberg News. \n\n" +
-        "9. [Fox News](http://www.foxnews.com/) Breaking News, Latest News and Current News from FOXNews.com. Breaking news and video. Latest Current News: U.S., World, Entertainment, Health, ... \n\n" +
-        "10. [The Independent](http://www.independent.co.uk/) Online newspaper. Includes culture, lifestyle, tech and sport. Offers various subscription packages. \n\n" +
-        "11. [National Geographic](http://www.nationalgeographic.com/) Explore National Geographic. A world leader in geography, cartography and exploration.\n\n" +
-        "12. [Techcrunch](https://techcrunch.com/) TechCrunch is a leading technology media property, dedicated to obsessively profiling startups, reviewing new Internet products, and breaking tech news. \n\n" +
-        "13. [The Economist](http://www.economist.com/) The Economist offers authoritative insight and opinion on international news, politics, business, finance, science, technology and the connections between them. \n\n" +
-        "14. [Business Insider](http://www.businessinsider.com/) Business Insider is a fast-growing business site with deep financial, media, tech, and other industry verticals. Launched in 2007, the site is now the largest ... \n\n" +
-        "15. [Engadget](https://www.engadget.com/) Engadget is the original home for technology news and reviews. Since its founding in 2004, we've grown from an exhaustive source for consumer tech news to a ... \n\n" +
-        "16. [The Wall Street Journal](https://www.wsj.com) WSJ online coverage of breaking news and current headlines from the US and around the world. Top stories, photos, videos, detailed analysis and in-depth ... \n\n" +
-        "17. [The Telegraph](http://www.telegraph.co.uk/) Latest news, business, sport, comment, lifestyle and culture from the Daily Telegraph and Sunday Telegraph newspapers and video from Telegraph TV. \n\n" +
-        "18. [The Lad Bible](http://www.ladbible.com/) LADbible is the home of entertainment, original video, viral content and news. We are the biggest community in the world for a social generation. \n\n" +
-        "19. [IGN](http://ign.com/) IGN is your site for Xbox One, PS4, PC, Wii-U, Xbox 360, PS3, Wii, 3DS, PS Vita & iPhone games with expert reviews, news, previews, trailers, cheat codes, wiki ... \n\n" +
-        "20. [Entertainment Weekly](http://ew.com/) Entertainment Weekly has all the latest news about TV shows, movies, and music, as well as exclusive behind the scenes content from the entertainment ... \n\n" +
-        "21. *Hacker News* From different sources";
-}
-
 function getCommandStartTxt() {
     return "Hi there, what can I do for you?" +
         "\n\nI have been trained to understand what you are typing. You may try sending any of these to me." +
         "\n- Show me google news \n- BBC news \n- Techcrunch news \n- National geographic news" +
-        "\n\nCommands: \n/sources - list of news sources📰 \n/help - help list🆘 \n/restart - back to beginning \n";
+        "\n\nCommands: \n/categories - list of news categories📰 \n/help - help list🆘 \n/restart - back to beginning \n";
 }
 
 function getNewsSourceStr(sourceTitle) {
@@ -320,6 +297,130 @@ function getNewsSourceStr(sourceTitle) {
         case "Hacker News":
             newsSourceStr = "hacker-news";
             break;
+        case "New Scientist":
+            newsSourceStr = "new-scientist";
+            break;
+        case "TechRadar":
+            newsSourceStr = "techradar";
+            break;
+        case "The Next Web":
+            newsSourceStr = "the-next-web";
+            break;
+        case "BuzzFeed":
+            newsSourceStr = "buzzfeed";
+            break;
+        case "ESPN":
+            newsSourceStr = "espn";
+            break;
+        case "talkSport":
+            newsSourceStr = "talksport";
+            break;
+        case "SPORTbible":
+            newsSourceStr = "the-sport-bible";
+            break;
+        case "CNBC":
+            newsSourceStr = "cnbc";
+            break;
+        case "Fortune":
+            newsSourceStr = "fortune";
+            break;
+        case "The Guardian (AU)":
+            newsSourceStr = "the-guardian-au";
+            break;
+        case "The Guardian (UK)":
+            newsSourceStr = "the-guardian-uk";
+            break;
     }
     return newsSourceStr;
+}
+
+
+
+/**
+ * Keyboard markup functions
+ */
+function getMainKeyBoardMarkupArr() {
+    return [
+        ["General☀️"],
+        ["Business👔"],
+        ["Entertainment🎉"],
+        ["Sports🏅"],
+        ["Technology📱"],
+        ["Science and nature🔬🏞️"],
+        ["Gaming🎮"]
+    ];
+}
+
+function getGeneralNewsKeyboardMarkupArr() {
+    return [
+        ["ABC News"],
+        ["BBC News"],
+        ["CNN News"],
+        ["The Washington Post"],
+        ["The Guardian (AU)"],
+        ["The Guardian (UK)"],
+        ["The New York Times"],
+        ["Google News"],
+        ["The Independent"],
+        ["The Telegraph"],
+        ["Back"]
+    ];
+}
+
+function getEntertainmentNewsKeyboardMarkupArr() {
+    return [
+        ["The Lad Bible"],
+        ["Entertainment Weekly"],
+        ["BuzzFeed"],
+        ["Back"]
+    ];
+}
+
+function getSportsNewsKeyboardMarkupArr() {
+    return [
+        ["ESPN"],
+        ["talkSport"],
+        ["SPORTbible"],
+        ["BBC Sport"],
+        ["Fox Sport"],
+        ["Back"]
+    ];
+}
+
+function getScienceAndNatureNewsKeyboardMarkupArr() {
+    return [
+        ["National Geographic"],
+        ["New Scientist"],
+        ["Back"]
+    ];
+}
+
+function getBusinessNewsKeyboardMarkupArr() {
+    return [
+        ["Bloomberg"],
+        ["CNBC"],
+        ["The Economist"],
+        ["Business Insider"],
+        ["Fortune"],
+        ["The Wall Street Journal"],
+        ["Back"]
+    ];
+}
+
+function getTechNewsKeyboardMarkupArr() {
+    return [
+        ["Techcrunch"],
+        ["Engadget"],
+        ["TechRadar"],
+        ["The Next Web"],
+        ["Hacker News"],
+        ["Back"]
+    ];
+}
+
+function getGamingNewsKeyboardMarkupArr() {
+    return [
+        ["IGN"],
+        ["Back"]
+    ];
 }
