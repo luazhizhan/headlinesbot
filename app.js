@@ -1,9 +1,9 @@
-var botan = require('botanio')("APK-KEY-HERE");
+var botan = require('botanio')("API-KEY");
 var TelegramBot = require('node-telegram-bot-api');
 var apiai = require('apiai');
 var request = require('request');
 
-var TOKEN = process.env.TELEGRAM_TOKEN || 'YOUR_TELEGRAM_BOT_TOKEN';
+var TOKEN = process.env.TELEGRAM_TOKEN || 'TOKEN';
 var options = {
     webHook: {
         port: process.env.PORT
@@ -18,10 +18,10 @@ var url = process.env.APP_URL || 'https://<app-name>.herokuapp.com:443';
 var bot = new TelegramBot(TOKEN, options);
 bot.setWebHook(`${url}/bot${TOKEN}`);
 
-//third party api set up
-var app = apiai("CLIENT-ACCESS-KEY");
-var newsApiKey = "NEWS-API-KEY";
 
+//third party api set up
+var apiaiApp = apiai("API-KEY");
+var newsApiKey = "API-KEY";
 
 /**
  * Bot methods
@@ -54,7 +54,17 @@ bot.on('message', function onMessage(msg) {
                 botan.track(msg, '/help');
                 txt = "I have been trained to understand what you are typing. You may try sending any of these to me." +
                     "\n- Show me google news \n- BBC news \n- Techcrunch news \n- National geographic news" +
-                    "\n\nCommands: \n/categories - list of news categories📰 \n/help - help list🆘 \n/restart - back to beginning \n";
+                    "\n\nCommands: \n/categories - list of news categories📰 \n/help - help list🆘" +
+                    "\n/rate - rate my bot⭐ \n/restart - back to beginning \n";
+                break;
+            case "/rate":
+                botan.track(msg, '/rate');
+                options = {
+                    parse_mode: "Markdown",
+                    disable_web_page_preview: false
+                };
+                txt = "Please help to rate my bot. Thank you.😃 \n\n";
+                txt += "[Click here to rate](http://storebot.me/bot/headlinesbot)";
                 break;
             case "/restart":
                 botan.track(msg, '/restart');
@@ -67,7 +77,8 @@ bot.on('message', function onMessage(msg) {
                 break;
             default:
                 txt = "I do not understand that command." +
-                    "\n\nCommands that I know: \n/categories - list of news categories📰 \n/help - help list🆘 \n/restart - back to beginning \n";
+                    "\n\nCommands that I know: \n/categories - list of news categories📰 \n/help - help list🆘" +
+                    "\n/rate - rate my bot⭐ \n/restart - back to beginning \n";
                 break;
         }
         bot.sendMessage(msg.chat.id, txt, options);
@@ -144,7 +155,6 @@ bot.on('message', function onMessage(msg) {
                     sessionId: parseInt(msg.chat.id)
                 });
                 apiaiRequest.on('response', function (response) {
-                    console.log("apiai response: " + JSON.stringify(response));
                     switch (response.result.metadata.intentName) {
                         case "Default Welcome Intent":
                             botan.track(msg, 'Default Welcome Intent');
@@ -228,7 +238,8 @@ function getCommandStartTxt() {
     return "Hi there, what can I do for you?" +
         "\n\nI have been trained to understand what you are typing. You may try sending any of these to me." +
         "\n- Show me google news \n- BBC news \n- Techcrunch news \n- National geographic news" +
-        "\n\nCommands: \n/categories - list of news categories📰 \n/help - help list🆘 \n/restart - back to beginning \n";
+        "\n\nCommands: \n/categories - list of news categories📰 \n/help - help list🆘" +
+        "\n/rate - rate my bot⭐ \n/restart - back to beginning \n";
 }
 
 function getNewsSourceStr(sourceTitle) {
