@@ -64,7 +64,7 @@ bot.on('message', function onMessage(msg) {
                     disable_web_page_preview: false
                 };
                 txt = "Please help to rate my bot. Thank you.😃 \n\n";
-                txt += "[Click here to rate](http://storebot.me/bot/headlinesbot)";
+                txt += "[Click here to rate](https://telegram.me/storebot?start=headlinesbot)";
                 break;
             case "/restart":
                 botan.track(msg, '/restart');
