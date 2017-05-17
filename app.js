@@ -42,7 +42,6 @@ bot.on('message', function onMessage(msg) {
                 };
                 break;
             case "/categories":
-                botan.track(msg, '/categories');
                 txt = "Here is a list of news categories.";
                 options = {
                     reply_markup: {
@@ -86,6 +85,7 @@ bot.on('message', function onMessage(msg) {
         txt = "Please select a news source";
         switch (msg.text) {
             case "General☀️":
+                botan.track(msg, '/categories');
                 options = {
                     reply_markup: {
                         keyboard: getGeneralNewsKeyboardMarkupArr()
@@ -94,6 +94,7 @@ bot.on('message', function onMessage(msg) {
                 bot.sendMessage(msg.chat.id, txt, options);
                 break;
             case "Business👔":
+                botan.track(msg, '/categories');
                 options = {
                     reply_markup: {
                         keyboard: getBusinessNewsKeyboardMarkupArr()
@@ -102,6 +103,7 @@ bot.on('message', function onMessage(msg) {
                 bot.sendMessage(msg.chat.id, txt, options);
                 break;
             case "Entertainment🎉":
+                botan.track(msg, '/categories');
                 options = {
                     reply_markup: {
                         keyboard: getEntertainmentNewsKeyboardMarkupArr()
@@ -110,6 +112,7 @@ bot.on('message', function onMessage(msg) {
                 bot.sendMessage(msg.chat.id, txt, options);
                 break;
             case "Sports🏅":
+                botan.track(msg, '/categories');
                 options = {
                     reply_markup: {
                         keyboard: getSportsNewsKeyboardMarkupArr()
@@ -118,6 +121,7 @@ bot.on('message', function onMessage(msg) {
                 bot.sendMessage(msg.chat.id, txt, options);
                 break;
             case "Technology📱":
+                botan.track(msg, '/categories');
                 options = {
                     reply_markup: {
                         keyboard: getTechNewsKeyboardMarkupArr()
@@ -126,6 +130,7 @@ bot.on('message', function onMessage(msg) {
                 bot.sendMessage(msg.chat.id, txt, options);
                 break;
             case "Science and nature🔬🏞️":
+                botan.track(msg, '/categories');
                 options = {
                     reply_markup: {
                         keyboard: getScienceAndNatureNewsKeyboardMarkupArr()
@@ -134,6 +139,7 @@ bot.on('message', function onMessage(msg) {
                 bot.sendMessage(msg.chat.id, txt, options);
                 break;
             case "Gaming🎮":
+                botan.track(msg, '/categories');
                 options = {
                     reply_markup: {
                         keyboard: getGamingNewsKeyboardMarkupArr()
