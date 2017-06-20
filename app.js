@@ -22,6 +22,7 @@ bot.setWebHook(`${url}/bot${TOKEN}`);
 //third party api set up
 var apiaiApp = apiai("API-KEY");
 var newsApiKey = "API-KEY";
+var radbotsApiKey = "API-KEY";
 
 /**
  * Bot methods
@@ -180,9 +181,6 @@ bot.on('message', function onMessage(msg) {
                                         parse_mode: "Markdown",
                                         disable_web_page_preview: false
                                     };
-                                    txt = "*" + sourceTitle + "*\n\n" + "[Powered by News API](https://newsapi.org/)";
-                                    bot.sendMessage(msg.chat.id, txt, options);
-
                                     var articlesLength = 0;
                                     for (articlesLength; articlesLength < articles.length; articlesLength++) {
                                         var articlesObj = articles[articlesLength];
@@ -190,6 +188,22 @@ bot.on('message', function onMessage(msg) {
                                             "\n[View full article here](" + articlesObj.url + ")\n\n";
                                         bot.sendMessage(msg.chat.id, txt, options);
                                     }
+                                    var adsURL = "https://radbots.com/api/ads?agent_key=" + radbotsApiKey + "&media_type=image&persona_id=" + msg.chat.id;
+                                    request(adsURL, function (error, response, body) {
+                                        var adsJSONData = JSON.parse(body);
+                                        var photoOptions = {
+                                            caption: '(AD) ' + adsJSONData.ad.cta_long,
+                                            reply_markup: {
+                                                inline_keyboard: [
+                                                    [{
+                                                        text: "Find out more",
+                                                        url: adsJSONData.ad.url
+                                                    }]
+                                                ]
+                                            }
+                                        };
+                                        bot.sendPhoto(msg.chat.id, adsJSONData.ad.media.url.medium, photoOptions);
+                                    });
                                 } else {
                                     botan.track(msg, 'News Articles Intent Error');
                                     console.log('error:', error);
