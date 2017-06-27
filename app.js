@@ -224,11 +224,22 @@ bot.on('message', function onMessage(msg) {
                         case "Default Fallback Intent":
                             botan.track(msg, 'Default Fallback Intent');
                             txt = response.result.fulfillment.messages[0].speech;
+                            options = {
+                                reply_markup: {
+                                    keyboard: getMainKeyBoardMarkupArr()
+                                }
+                            };
                             bot.sendMessage(msg.chat.id, txt, options);
                             break;
                         default:
                             botan.track(msg, 'Unkonwn Intent');
                             txt = "Sorry, I do not understand you.";
+                            options = {
+                                reply_markup: {
+                                    keyboard: getMainKeyBoardMarkupArr()
+                                }
+                            };
+                            bot.sendMessage(msg.chat.id, txt, options);
                             break;
                     }
                 });
