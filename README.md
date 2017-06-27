@@ -1,4 +1,4 @@
-# <img src="https://img.telegram.me/u/ed60e7e6a89/d24f5170d26734d268aebb.jpg" width="50"> Headlines 
+# <img src="http://image.ibb.co/bYd98Q/Headlines_Bot.png" width="50"> Headlines 
 A telegram bot that brings you news from different news sources. Powered by [newsapi](https://newsapi.org/)
 
 ## Set up
