@@ -275,11 +275,9 @@ function checkForBotCommand(msgObj) {
 }
 
 function getCommandStartTxt() {
-    return "Hi there, what can I do for you?" +
-        "\n\nI have been trained to understand what you are typing. You may try sending any of these to me." +
-        "\n- Show me google news \n- BBC news \n- Techcrunch news \n- National geographic news" +
+    return "Hey there! What type of news would you like to read?" +
         "\n\nCommands: \n/categories - list of news categories📰 \n/help - help list🆘" +
-        "\n/rate - rate my bot⭐ \n/restart - back to beginning \n";
+        "\n/rate - rate my bot⭐  \n/feedback - give feedback \n/restart - back to beginning \n";
 }
 
 function getNewsSourceStr(sourceTitle) {
