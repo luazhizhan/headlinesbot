@@ -1,6 +1,6 @@
 {
   "name": "headlinesbot",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": " A telegram bot that brings you news from different news sources. Powered by News API.",
   "main": "app.js",
   "scripts": {
@@ -19,7 +19,7 @@
   "license": "GPL-3.0",
   "dependencies": {
     "apiai": "^4.0.2",
-    "botanio": "0.0.6",
+    "botanio": "^0.0.6",
     "node-telegram-bot-api": "^0.27.1",
     "request": "^2.81.0"
   }

@@ -66,6 +66,15 @@ bot.on('message', function onMessage(msg) {
                 txt = "Please help to rate my bot. Thank you.😃 \n\n";
                 txt += "[Click here to rate](https://telegram.me/storebot?start=headlinesbot)";
                 break;
+            case "/feedback":
+                botan.track(msg, '/feedback');
+                options = {
+                    parse_mode: "Markdown",
+                    disable_web_page_preview: false
+                };
+                txt = "Please fill up this form if you have any feedback. Thank you.😃 \n\n";
+                txt += "[Fill up form](https://goo.gl/forms/pqHM87dD99xtYS7X2)";
+                break;
             case "/restart":
                 botan.track(msg, '/restart');
                 txt = getCommandStartTxt();
