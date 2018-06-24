@@ -20,6 +20,6 @@ A telegram bot that brings you news from different news sources. Powered by [new
 
 
 ## Screenshots
-<img src="https://raw.githubusercontent.com/luazhizhan/headlinesbot/master/img/headlinesbot-example.png" width="300">
+<img src="https://raw.githubusercontent.com/luazhizhan/headlinesbot/master/img/headlinesbot-example.png" width="250">
 &nbsp;&nbsp;&nbsp;
-<img src="https://raw.githubusercontent.com/luazhizhan/headlinesbot/master/img/headlinesbot-example2.png" width="300">
+<img src="https://raw.githubusercontent.com/luazhizhan/headlinesbot/master/img/headlinesbot-example2.png" width="250">
