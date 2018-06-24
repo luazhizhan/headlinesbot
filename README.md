@@ -17,3 +17,9 @@ A telegram bot that brings you news from different news sources. Powered by [new
 - This package is used to build this bot. [Node.js Telegram Bot API](https://github.com/yagop/node-telegram-bot-api)
 - Heroku set up [guide](https://devcenter.heroku.com/articles/getting-started-with-nodejs#introduction)
 - Try out this bot here [@Headlinesbot](https://telegram.me/headlinesbot)
+
+
+## Screenshots
+<img src="https://raw.githubusercontent.com/luazhizhan/headlinesbot/master/img/headlinesbot-example.png" width="300">
+&nbsp;&nbsp;&nbsp;
+<img src="https://raw.githubusercontent.com/luazhizhan/headlinesbot/master/img/headlinesbot-example2.png" width="300">
